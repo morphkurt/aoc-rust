@@ -14,20 +14,23 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let items = parse(input);
     let mut sum: i32 = 0;
-    for line in items {
-        if is_safe(&line) {
-            sum += 1;
+    sum += items.iter().fold(0, |acc, line| {
+        if is_safe(line) {
+            acc + 1
         } else {
-            for i in 0..line.len() {
+            // Check if any modified line is safe
+            let modified_safe = (0..line.len()).any(|i| {
                 let mut new_line = line.clone();
                 new_line.remove(i);
-                if is_safe(&new_line) {
-                    sum += 1;
-                    break;
-                }
+                is_safe(&new_line)
+            });
+            if modified_safe {
+                acc + 1
+            } else {
+                acc
             }
         }
-    }
+    });
     Some(sum.try_into().unwrap())
 }
 
