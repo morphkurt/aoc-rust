@@ -15,7 +15,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let items = parse(input);
     let mut sum: i32 = 0;
     sum += items.iter().fold(0, |acc, line| {
-        if is_safe(line) {
+        if is_safe(&line) {
             acc + 1
         } else {
             // Check if any modified line is safe
