@@ -7,13 +7,16 @@ pub fn part_one(input: &str) -> Option<u32> {
     let regex = Regex::new(r"(?m)mul\(\d+,\d+\)").unwrap();
     let result = regex.captures_iter(input);
 
-    let sum: i32 = result.into_iter().map(|mat| {
-        let mut a = 0;
-        let mut b = 0;
-        let s : &str = mat.get(0).unwrap().as_str();
-        let _ = sscanf!(s, "mul({},{})", a, b);
-        a * b
-    }).sum();
+    let sum: i32 = result
+        .into_iter()
+        .map(|mat| {
+            let mut a = 0;
+            let mut b = 0;
+            let s: &str = mat.get(0).unwrap().as_str();
+            let _ = sscanf!(s, "mul({},{})", a, b);
+            a * b
+        })
+        .sum();
     Some(sum as u32)
 }
 
@@ -40,7 +43,6 @@ pub fn part_two(input: &str) -> Option<u32> {
     }
     Some(sum as u32)
 }
-
 
 #[cfg(test)]
 mod tests {

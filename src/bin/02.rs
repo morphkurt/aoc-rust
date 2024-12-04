@@ -34,17 +34,16 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(sum.try_into().unwrap())
 }
 
-
 fn is_safe(line: &Vec<i32>) -> bool {
-    let  prev_dif = line[1] - line[0];
+    let prev_dif = line[1] - line[0];
     let mut found: bool = true;
     for i in 2..line.len() {
         let c = line[i];
         let p = line[i - 1];
         let dif = c - p;
-        if  prev_dif * dif < 0 || dif.abs() > 3 || dif == 0 || prev_dif == 0 || prev_dif.abs() > 3{
-                found = false;
-                break;
+        if prev_dif * dif < 0 || dif.abs() > 3 || dif == 0 || prev_dif == 0 || prev_dif.abs() > 3 {
+            found = false;
+            break;
         }
         found = found && true;
     }
@@ -56,7 +55,10 @@ fn parse(input: &str) -> Vec<Vec<i32>> {
     let mut items: Vec<Vec<i32>> = Vec::new();
     for line in input.lines() {
         // Parse the line
-        let v: Vec<i32> = line.split(" ").map(|x: &str| x.parse::<i32>().unwrap()).collect();
+        let v: Vec<i32> = line
+            .split(" ")
+            .map(|x: &str| x.parse::<i32>().unwrap())
+            .collect();
         items.push(v);
     }
     items
