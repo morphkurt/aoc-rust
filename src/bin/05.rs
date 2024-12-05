@@ -1,4 +1,4 @@
-use std::{collections::HashMap, f32::consts::E};
+use std::collections::HashMap;
 
 advent_of_code::solution!(5);
 
@@ -25,7 +25,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         if !is_ordered(&map, item) {
             let mut list = item.clone();
             list.sort_by(|a, b| {
-                if map.contains_key(b) {
+                if map.contains_key(b)  {
                     let b_dep = map.get(b).unwrap();
                     if b_dep.contains(a) {
                         return std::cmp::Ordering::Less;
@@ -36,7 +36,6 @@ pub fn part_two(input: &str) -> Option<u32> {
                 std::cmp::Ordering::Equal
             });
             let middle = item.len() / 2;
-            println!("{:?}", list);
             sum += list[middle];
         }
     }
