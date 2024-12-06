@@ -25,7 +25,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         if !is_ordered(&map, item) {
             let mut list = item.clone();
             list.sort_by(|a, b| {
-                if map.contains_key(b)  {
+                if map.contains_key(b) {
                     let b_dep = map.get(b).unwrap();
                     if b_dep.contains(a) {
                         return std::cmp::Ordering::Less;
