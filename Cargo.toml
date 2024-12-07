@@ -22,6 +22,7 @@ test_lib = []
 [dependencies]
 regex = "1.4"
 scanf = "1.2.1"
+rayon = "1.5"
 
 # Template dependencies
 chrono = { version = "0.4.38", optional = true }

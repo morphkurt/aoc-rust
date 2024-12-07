@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 advent_of_code::solution!(6);
@@ -90,13 +91,13 @@ pub fn part_two(input: &str) -> Option<u32> {
             guard = next;
         }
     }
-    let mut sum = 0;
-    for &point in &visited {
+    let sum: u32 = visited.par_iter().map(|&point| {
         let mut fresh_grid = grid.clone();
         let mut direct_aware_visited = HashSet::new();
         let mut d: usize = 0;
         let mut start_point = origin_guard;
         fresh_grid.map.insert(point, Object::OBSTACLE);
+
         loop {
             let next = start_point.go(DIRECTIONS[d]);
             let key = (next.x, next.y, d);
@@ -104,8 +105,7 @@ pub fn part_two(input: &str) -> Option<u32> {
                 break;
             }
             if direct_aware_visited.contains(&key) {
-                sum += 1;
-                break;
+                return 1;
             }
             if fresh_grid.obstacle(next) {
                 d = (d + 1) % 4;
@@ -114,7 +114,8 @@ pub fn part_two(input: &str) -> Option<u32> {
                 start_point = next;
             }
         }
-    }
+        0
+    }).sum();
     Some(sum)
 }
 
