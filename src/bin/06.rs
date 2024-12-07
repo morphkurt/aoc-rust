@@ -91,31 +91,34 @@ pub fn part_two(input: &str) -> Option<u32> {
             guard = next;
         }
     }
-    let sum: u32 = visited.par_iter().map(|&point| {
-        let mut fresh_grid = grid.clone();
-        let mut direct_aware_visited = HashSet::new();
-        let mut d: usize = 0;
-        let mut start_point = origin_guard;
-        fresh_grid.map.insert(point, Object::OBSTACLE);
+    let sum: u32 = visited
+        .par_iter()
+        .map(|&point| {
+            let mut fresh_grid = grid.clone();
+            let mut direct_aware_visited = HashSet::new();
+            let mut d: usize = 0;
+            let mut start_point = origin_guard;
+            fresh_grid.map.insert(point, Object::OBSTACLE);
 
-        loop {
-            let next = start_point.go(DIRECTIONS[d]);
-            let key = (next.x, next.y, d);
-            if !fresh_grid.bound(next) {
-                break;
+            loop {
+                let next = start_point.go(DIRECTIONS[d]);
+                let key = (next.x, next.y, d);
+                if !fresh_grid.bound(next) {
+                    break;
+                }
+                if direct_aware_visited.contains(&key) {
+                    return 1;
+                }
+                if fresh_grid.obstacle(next) {
+                    d = (d + 1) % 4;
+                } else {
+                    direct_aware_visited.insert(key);
+                    start_point = next;
+                }
             }
-            if direct_aware_visited.contains(&key) {
-                return 1;
-            }
-            if fresh_grid.obstacle(next) {
-                d = (d + 1) % 4;
-            } else {
-                direct_aware_visited.insert(key);
-                start_point = next;
-            }
-        }
-        0
-    }).sum();
+            0
+        })
+        .sum();
     Some(sum)
 }
 
