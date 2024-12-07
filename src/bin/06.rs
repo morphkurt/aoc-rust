@@ -1,110 +1,155 @@
+use std::collections::{HashMap, HashSet};
+
 advent_of_code::solution!(6);
 
-pub fn part_one(input: &str) -> Option<u32> {
-    let (mut matrix, w, h, x, y, _) = parse(input);
-    let mut d: usize = 3;
-    let n: Vec<Vec<i32>> = vec![vec![1, 0], vec![0, 1], vec![-1, 0], vec![0, -1]];
-    let mut guard: Vec<i32> = vec![x as i32, y as i32];
-
-    matrix[get_array_loc(w, guard[0], guard[1])] = 'X';
-    loop {
-        guard[0] += n[d][0];
-        guard[1] += n[d][1];
-        if !(guard[0] >= 0
-            && guard[1] >= 0
-            && guard[0] < w.try_into().unwrap()
-            && guard[1] < h.try_into().unwrap())
-        {
-            break;
-        }
-        if matrix[get_array_loc(w, guard[0], guard[1])] == '#' {
-            guard[0] -= n[d][0];
-            guard[1] -= n[d][1];
-            d = (d + 1) % 4;
-            guard[0] += n[d][0];
-            guard[1] += n[d][1];
-        }
-        matrix[get_array_loc(w, guard[0], guard[1])] = 'X';
-    }
-    let sum = matrix.iter().filter(|&n| *n == 'X').count();
-    return Some(sum as u32);
+#[derive(Debug, Clone)]
+enum Object {
+    OBSTACLE,
 }
 
-fn get_array_loc(w: usize, x: i32, y: i32) -> usize {
-    let r: i32 = y * w as i32 + x;
-    r as usize
+#[derive(Debug, Clone)]
+struct Grid {
+    map: HashMap<Point, Object>,
+    w: i32,
+    h: i32,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn go(&self, direction: Point) -> Point {
+        Point {
+            x: self.x + direction.x,
+            y: self.y + direction.y,
+        }
+    }
+}
+
+impl Grid {
+    fn bound(&self, point: Point) -> bool {
+        if point.x < 0 || point.y < 0 {
+            return false;
+        }
+        if point.x >= self.w || point.y >= self.h {
+            return false;
+        }
+        true
+    }
+    fn obstacle(&self, point: Point) -> bool {
+        match self.map.get(&point) {
+            Some(Object::OBSTACLE) => true,
+            _ => false,
+        }
+    }
+}
+
+const UP: Point = Point { x: 0, y: -1 };
+const RIGHT: Point = Point { x: 1, y: 0 };
+const DOWN: Point = Point { x: 0, y: 1 };
+const LEFT: Point = Point { x: -1, y: 0 };
+
+const DIRECTIONS: [Point; 4] = [UP, RIGHT, DOWN, LEFT];
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let (grid, mut guard) = parse(input);
+    let mut d = 0;
+    let mut visited: HashSet<Point> = HashSet::new();
+    loop {
+        let next = guard.go(DIRECTIONS[d]);
+        if !grid.bound(next) {
+            break;
+        }
+        if grid.obstacle(next) {
+            d = (d + 1) % 4;
+        } else {
+            visited.insert(next);
+            guard = next;
+        }
+    }
+    Some(visited.len() as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let (matrix, w, h, x, y, routes) = parse(input);
-    let n: Vec<Vec<i32>> = vec![vec![1, 0], vec![0, 1], vec![-1, 0], vec![0, -1]];
-    let guard: Vec<i32> = vec![x as i32, y as i32];
-
-    let mut sum = 0;
-    let size = w * h;
-
-    for i in 0..size {
-        let mut cloned_matrix = matrix.clone();
-        let mut cloned_routes = routes.clone();
-        let mut d: usize = 3;
-
-        cloned_routes[get_array_loc(w, guard[0], guard[1])].push(d as i32);
-        if cloned_matrix[i] != '#' {
-            cloned_matrix[i] = '#';
-        } else {
-            continue;
+    let (grid, origin_guard) = parse(input);
+    let mut d: usize = 0;
+    let mut guard = origin_guard.clone();
+    let mut visited: HashSet<Point> = HashSet::new();
+    loop {
+        let next = guard.go(DIRECTIONS[d]);
+        if !grid.bound(next) {
+            break;
         }
-        let mut g: Vec<i32> = guard.clone();
+        if grid.obstacle(next) {
+            d = (d + 1) % 4;
+        } else {
+            visited.insert(next);
+            guard = next;
+        }
+    }
+    let mut sum = 0;
+    for point in visited.iter() {
+        let mut fresh_grid = grid.clone();
+        let mut direct_aware_visited = HashSet::new();
+        let mut d: usize = 0;
+        let mut start_point = origin_guard.clone();
+        fresh_grid.map.insert(*point, Object::OBSTACLE);
         loop {
-            g[0] += n[d][0];
-            g[1] += n[d][1];
-            if !(g[0] >= 0
-                && g[1] >= 0
-                && g[0] < w.try_into().unwrap()
-                && g[1] < h.try_into().unwrap())
-            {
-                break;
-            }
-            if cloned_routes[get_array_loc(w, g[0], g[1])].contains(&(d as i32)) {
+            let next = start_point.go(DIRECTIONS[d]);
+            let key = format!("{},{},{}", next.x, next.y, d);
+            if direct_aware_visited.contains(&key) {
                 sum += 1;
                 break;
             }
-            cloned_routes[get_array_loc(w, g[0], g[1])].push(d as i32);
-
-            if cloned_matrix[get_array_loc(w, g[0], g[1])] == '#' {
-                g[0] -= n[d][0];
-                g[1] -= n[d][1];
+            if !fresh_grid.bound(next) {
+                break;
+            }
+            if fresh_grid.obstacle(next) {
                 d = (d + 1) % 4;
+            } else {
+                direct_aware_visited.insert(key);
+                start_point = next;
             }
         }
     }
-    return Some(sum as u32);
+    Some(sum)
 }
 
-fn parse(input: &str) -> (Vec<char>, usize, usize, usize, usize, Vec<Vec<i32>>) {
-    let mut routes: Vec<Vec<i32>> = Vec::new();
-    let mut matrix = Vec::new();
+fn parse(input: &str) -> (Grid, Point) {
     let mut w = 0;
     let mut h = 0;
-    let mut x = 0;
-    let mut y = 0;
-    let mut j = 0;
-    for line in input.lines() {
-        let mut i = 0;
-        for c in line.chars() {
-            if c == '^' {
-                x = i;
-                y = j;
-            }
-            routes.push(Vec::<i32>::new());
-            matrix.push(c);
-            i += 1;
+    let mut origin = Point { x: 0, y: 0 };
+    let mut map = HashMap::new();
+    for (y, line) in input.split('\n').into_iter().enumerate() {
+        h = y as i32;
+        for (x, c) in line.chars().enumerate() {
+            w = x as i32;
+            match c {
+                '#' => {
+                    map.insert(
+                        Point {
+                            x: x as i32,
+                            y: y as i32,
+                        },
+                        Object::OBSTACLE,
+                    );
+                }
+                '^' => {
+                    origin = Point {
+                        x: x as i32,
+                        y: y as i32,
+                    };
+                }
+                _ => {}
+            };
         }
-        w = line.len();
-        h += 1;
-        j += 1;
     }
-    (matrix, w, h, x, y, routes)
+    h += 1;
+    w += 1;
+    (Grid { map, w, h }, origin)
 }
 
 #[cfg(test)]
