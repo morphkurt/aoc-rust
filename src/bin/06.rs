@@ -76,7 +76,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let (grid, origin_guard) = parse(input);
     let mut d: usize = 0;
-    let mut guard = origin_guard.clone();
+    let mut guard = origin_guard;
     let mut visited: HashSet<Point> = HashSet::new();
     loop {
         let next = guard.go(DIRECTIONS[d]);
@@ -91,20 +91,20 @@ pub fn part_two(input: &str) -> Option<u32> {
         }
     }
     let mut sum = 0;
-    for point in visited.iter() {
+    for &point in &visited {
         let mut fresh_grid = grid.clone();
         let mut direct_aware_visited = HashSet::new();
         let mut d: usize = 0;
-        let mut start_point = origin_guard.clone();
-        fresh_grid.map.insert(*point, Object::OBSTACLE);
+        let mut start_point = origin_guard;
+        fresh_grid.map.insert(point, Object::OBSTACLE);
         loop {
             let next = start_point.go(DIRECTIONS[d]);
-            let key = format!("{},{},{}", next.x, next.y, d);
-            if direct_aware_visited.contains(&key) {
-                sum += 1;
+            let key = (next.x, next.y, d);
+            if !fresh_grid.bound(next) {
                 break;
             }
-            if !fresh_grid.bound(next) {
+            if direct_aware_visited.contains(&key) {
+                sum += 1;
                 break;
             }
             if fresh_grid.obstacle(next) {
