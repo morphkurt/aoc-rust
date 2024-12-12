@@ -21,10 +21,8 @@ pub fn part_one(input: &str) -> Option<u32> {
         sum += walk(grid.clone(), start.clone());
     }
 
-
     Some(sum as u32)
 }
-
 
 pub fn part_two(input: &str) -> Option<u32> {
     let (grid, starts) = parse(input);
@@ -33,10 +31,8 @@ pub fn part_two(input: &str) -> Option<u32> {
         sum += walk_part2(grid.clone(), start.clone());
     }
 
-
     Some(sum as u32)
 }
-
 
 fn walk(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
     let mut found_dest: HashSet<(i32, i32)> = HashSet::new();
@@ -55,7 +51,7 @@ fn walk(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
             let y = node.y + direction[1];
             if x >= 0 && x < grid.len() as i32 && y >= 0 && y < grid[0].len() as i32 {
                 let value = grid[y as usize][x as usize];
-                if node_val + 1 == value{
+                if node_val + 1 == value {
                     if !node.visited.contains(&(x, y)) {
                         let mut node_visited: HashSet<(i32, i32)> = node.visited.clone();
                         node_visited.insert((node.x, node.y));
@@ -79,7 +75,6 @@ fn walk(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
     score
 }
 
-
 fn walk_part2(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
     let mut to_visit = Vec::new();
     to_visit.push(Node {
@@ -96,7 +91,7 @@ fn walk_part2(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
             let y = node.y + direction[1];
             if x >= 0 && x < grid.len() as i32 && y >= 0 && y < grid[0].len() as i32 {
                 let value = grid[y as usize][x as usize];
-                if node_val + 1 == value{
+                if node_val + 1 == value {
                     if !node.visited.contains(&(x, y)) {
                         let mut node_visited: HashSet<(i32, i32)> = node.visited.clone();
                         node_visited.insert((node.x, node.y));
@@ -116,7 +111,6 @@ fn walk_part2(grid: Vec<Vec<i32>>, start: Vec<i32>) -> i32 {
     }
     score
 }
-
 
 fn parse(input: &str) -> (Vec<Vec<i32>>, Vec<Vec<i32>>) {
     let mut starts: Vec<Vec<i32>> = Vec::new();
