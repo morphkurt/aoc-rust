@@ -86,47 +86,6 @@ pub fn part_two(input: &str) -> Option<u32> {
     None
 }
 
-fn move_robot_pt2(d:i32, grid: Vec<Obstacle>, w: i32, h: i32) -> Vec<Obstacle> {
-    let current_items: Vec<Obstacle> = grid
-    .iter()
-    .filter_map(|o| {
-        if let Obstacle::Robot(robot_obj) = o {
-            Some(Obstacle::Robot(o))
-        } else {
-            None
-        }
-    }).collect();
-
-    let mut loc = robot.get_loc();
-
-    let mut working_grid = grid.clone();
-
-    loop {
-        let next_items: Vec<Option<Obstacle>> = current_items.iter().flat_map(|f|{
-            let mut nx = 0;
-            let mut ny = 0;
-            match f {
-                Obstacle::Box(f) => {
-                    let p = f.get_loc();
-                    if d == 0 || d == 2 {
-                        vec![get_obstacle(grid, p[0]+DIR[d as usize].0, p[0]+DIR[d as usize].0, w, h), get_obstacle(grid, p[1]+DIR[d as usize].0, p[1]+DIR[d as usize].0, w, h)];
-                    }
-                    else if d == 1{
-                        re vec![get_obstacle(grid, p[1]+DIR[d as usize].0, p[1]+DIR[d as usize].0, w, h)];
-                    }
-                        vec![get_obstacle(grid, p[0]+DIR[d as usize].0, p[0]+DIR[d as usize].0, w, h)]
-
-                }
-                Obstacle::Robot(robot) => todo!(),
-                Obstacle::Fence(fence) => todo!(),
-                Obstacle::Empty(empty) => todo!(),
-            }
-        }
-        None
-    ).collect();
-    }
-}
-
 fn move_robot(d: i32, grid: HashMap<(i32, i32), char>) -> HashMap<(i32, i32), char> {
     let mut current: (i32, i32) = grid
         .iter()
